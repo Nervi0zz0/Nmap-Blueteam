@@ -1,139 +1,140 @@
-# 🛡️ Nmap Esencial para Blue Team: Tu Primera Defensa 🛡️
+# 🛡️ Nmap Esencial para Blue Team: Visibilidad y Defensa Activa 🛡️
 
-**¡Bienvenido/a!** Esta guía es una introducción **clara y visual** a cómo usar Nmap, una herramienta increíblemente útil, desde la perspectiva de la **defensa (Blue Team)**. Olvídate de la complejidad inicial, ¡vamos a lo esencial!
+**¡Bienvenido a la Guía Esencial de Nmap para Equipos de Defensa (Blue Team)!**
 
-> **⚠️ ¡LO MÁS IMPORTANTE: PERMISO! ⚠️**
-> Nmap es potente. **NUNCA** escanees una red o dispositivo sin tener **permiso explícito y por escrito**. Es ilegal y poco ético. ¡Escanea sólo lo que te autoricen!
+Esta guía te proporciona una base sólida y práctica para utilizar Nmap, una herramienta indispensable en ciberseguridad, enfocándonos en cómo fortalece tus capacidades defensivas. Olvídate del ruido inicial, aquí encontrarás claridad, ejemplos prácticos y un enfoque visual para dominar lo fundamental.
 
----
-
-## 🤔 ¿Por Qué Nmap si Soy Defensor (Blue Team)?
-
-Imagina Nmap como tus "ojos" en la red. Te ayuda a:
-
-* **✅ Verificar tu Inventario:** ¿Qué equipos están realmente conectados y activos?
-* **🚪 Comprobar Puertos Abiertos:** ¿Hay "puertas" abiertas (servicios) que no deberían estarlo?
-* **🔍 Identificar Servicios:** Saber qué programas (y a veces su versión) están detrás de esos puertos abiertos.
-* **🧱 Auditar Reglas de Firewall:** Comprobar si el firewall está bloqueando lo que debe bloquear.
+> **⚠️ ¡LA REGLA DE ORO: AUTORIZACIÓN! ⚠️**
+> Nmap interactúa activamente con la red. **JAMÁS** ejecutes Nmap contra ningún sistema o red sin **autorización explícita, documentada y por escrito** del propietario. El escaneo no autorizado es ilegal, poco ético y puede tener consecuencias graves. ¡Actúa siempre con responsabilidad y profesionalidad!
 
 ---
 
-## 🚀 Primeros Pasos (Instalación Rápida)
+## 🤔 ¿Por Qué Nmap es Clave en el Arsenal del Blue Team?
 
-Nmap funciona en Linux, macOS y Windows. La forma más fácil suele ser:
+Nmap no es solo para atacantes. Para un Blue Team, es una herramienta fundamental de **visibilidad y verificación**. Te permite validar la postura de seguridad de tu red de forma proactiva, ayudándote a:
+
+* **✅ Validar Inventarios y Descubrir "Shadow IT":** Confirma qué dispositivos están realmente activos y conectados, comparándolo con tu inventario oficial y detectando sistemas no registrados.
+* **🚪 Auditar la Superficie de Exposición:** Identifica qué puertos están abiertos y qué servicios están escuchando. ¿Hay algo expuesto innecesariamente?
+* **🔍 Identificar Servicios y Versiones:** No solo veas un puerto abierto, ¡identifica qué software y versión específica se ejecuta! Esto es crucial para la gestión de vulnerabilidades.
+* **🧱 Verificar la Segmentación y Firewalls:** Comprueba que tus controles de red (Firewalls, ACLs) funcionan como esperas, bloqueando el tráfico no deseado entre segmentos.
+* **🔄 Detectar Cambios y Derivas:** Comparando escaneos periódicos, puedes detectar nuevas aperturas de puertos o cambios en servicios que podrían indicar una mala configuración o un compromiso.
+
+---
+
+## 🚀 Primeros Pasos: Instalación
+
+Nmap es multiplataforma. Aquí las formas comunes de instalarlo:
 
 * **Linux (Debian/Ubuntu):** `sudo apt update && sudo apt install nmap`
 * **Linux (Fedora/CentOS):** `sudo dnf install nmap` (o `yum`)
 * **macOS (con Homebrew):** `brew install nmap`
-* **Windows:** Descarga el instalador desde [nmap.org](https://nmap.org/download.html) (Instalador `exe`).
+* **Windows:** Descarga el instalador `exe` oficial (Nmap setup) desde [nmap.org/download.html](https://nmap.org/download.html)
 
-*(Para comandos que usan `sudo`, necesitarás permisos de administrador)*
-
----
-
-## ✨ Conceptos Clave (¡Lo Mínimo que Necesitas!) ✨
-
-1.  **🎯 Objetivo (`target`):** A quién vas a escanear (una IP `192.168.1.1`, un rango `192.168.1.1-50`, o una red `192.168.1.0/24`).
-2.  **📡 Descubrir (`Host Discovery`):** Averiguar si el objetivo está "vivo" antes de escanearlo a fondo (`-sn`).
-3.  **🚪 Escanear Puertos (`Port Scanning`):** Ver qué puertos TCP o UDP están `open` (abierto), `closed` (cerrado) o `filtered` (filtrado por firewall).
-4.  **🔍 Identificar Servicio/Versión (`Service/Version Detection`):** Intentar saber qué programa y versión corre en un puerto abierto (`-sV`).
-5.  **💾 Guardar Resultados (`Output`):** Salvar lo que encuentras en un archivo (`-oN`, `-oX`).
+*(Recuerda: Muchos comandos potentes de Nmap requieren privilegios de administrador/root, por lo que usarás `sudo` en Linux/macOS)*
 
 ---
 
-## 🛡️ Tareas Esenciales del Blue Team con Nmap 🛡️
+## ✨ Conceptos Fundamentales (La Base de Todo) ✨
 
-Aquí tienes los comandos básicos para empezar:
+Entender estos conceptos te permitirá usar Nmap con confianza:
 
-### 1. Encontrar Equipos Activos en tu Red Local (`-sn`)
-
-* **Objetivo:** Hacer un inventario rápido de qué IPs responden en tu red local.
-* **Comando:**
-    ```bash
-    # -sn: Solo descubre hosts (Ping Scan), no escanea puertos. Rápido!
-    # -PR: Usa ARP Ping (muy fiable en red local). Necesita sudo.
-    sudo nmap -sn -PR 192.168.1.0/24
-    ```
-* **Qué buscar:** Las líneas que dicen `Host is up`.
-
-### 2. Comprobar Puertos Comunes en un Equipo Específico (`-F`)
-
-* **Objetivo:** Ver rápidamente si un equipo tiene abiertos los puertos más habituales.
-* **Comando:**
-    ```bash
-    # -F: Fast Scan (escanea los 100 puertos TCP más comunes).
-    nmap -F 192.168.1.10
-    ```
-* **Qué buscar:** Puertos en estado `open`. ¿Son los que esperabas?
-
-### 3. Escanear Puertos TCP Específicos (`-p T:<puertos>`)
-
-* **Objetivo:** Verificar si ciertos puertos TCP están abiertos, cerrados o filtrados.
-* **Comando:**
-    ```bash
-    # -p T:22,80,443,3389 : Escanea solo los puertos TCP 22 (SSH), 80 (HTTP), 443 (HTTPS), 3389 (RDP).
-    # -sS: TCP SYN Scan (sigiloso, necesita sudo). Si no puedes usar sudo, Nmap usará -sT (menos sigiloso).
-    sudo nmap -sS -p T:22,80,443,3389 192.168.1.15
-    ```
-* **Qué buscar:** El estado (`open`, `closed`, `filtered`) de cada puerto.
-
-### 4. Identificar Servicio y Versión en Puertos Abiertos (`-sV`)
-
-* **Objetivo:** Saber qué programa y versión corre en los puertos abiertos encontrados. ¡Muy importante!
-* **Comando:**
-    ```bash
-    # -sV: Habilita la detección de versión en los puertos abiertos.
-    # Combinado con -F para escanear puertos comunes y obtener versión.
-    sudo nmap -sV -F 192.168.1.20
-    ```
-* **Qué buscar:** La columna `VERSION`. ¿Es una versión antigua o vulnerable? ¿Es el servicio esperado?
-
-### 5. Guardar los Resultados en un Archivo (`-oN`, `-oX`)
-
-* **Objetivo:** Guardar el escaneo para revisarlo luego o compararlo.
-* **Comando:**
-    ```bash
-    # -oN <archivo.nmap>: Guarda en formato normal, legible por humanos.
-    sudo nmap -sV -F 192.168.1.0/24 -oN escaneo_red_$(date +%Y%m%d).nmap
-
-    # -oX <archivo.xml>: Guarda en formato XML, ideal para procesar con otros programas o comparar (ndiff).
-    sudo nmap -sV -F 192.168.1.0/24 -oX escaneo_red_$(date +%Y%m%d).xml
-    ```
-* **Qué buscar:** Los archivos generados (`.nmap` o `.xml`) en tu carpeta.
+1.  **🎯 Objetivo (`target`):** A quién escaneas. Puede ser una IP (`192.168.1.1`), un nombre de host (`servidor.local`), un rango (`10.0.0.1-20`), una subred completa en notación CIDR (`192.168.1.0/24`) o leer desde un archivo (`-iL lista_hosts.txt`). ¡Define siempre un alcance claro y **autorizado**!
+2.  **📡 Descubrimiento de Hosts (`Host Discovery`):** El paso previo para saber si un objetivo está "vivo" y responde en la red. La opción `-sn` se usa para hacer *solo* esto, sin escanear puertos. `-PR` (ARP Ping) es muy rápido en redes locales. `-Pn` *evita* este paso (¡úsalo con cuidado!).
+3.  **🚪 Escaneo de Puertos (`Port Scanning`):** La función estrella. Averigua el estado de los puertos TCP y UDP. Los estados clave son:
+    * `open`: ¡Hay un servicio escuchando activamente! (Tu foco principal).
+    * `closed`: El puerto responde, pero no hay servicio escuchando. (Confirma que el host está vivo).
+    * `filtered`: Nmap no puede determinar el estado; probablemente un firewall está bloqueando. (Indica control de red).
+4.  **🔍 Identificación Servicio/Versión (`Service/Version Detection -sV`):** Una vez encontrado un puerto `open`, Nmap intenta averiguar qué aplicación concreta (ej. Apache, Microsoft IIS, OpenSSH) y qué **versión** está corriendo. ¡Oro puro para detectar software vulnerable!
+5.  **⏱️ Temporización (`Timing -T<0-5>`):** Controla la velocidad y agresividad del escaneo. `-T4` (agresivo) suele ser bueno para redes internas rápidas y fiables. `-T3` (normal) es el defecto. `-T0` a `-T2` son más lentos y sigilosos. `-T5` (insane) es muy rápido pero puede sobrecargar redes o ser detectado. Empieza con `-T3` o `-T4` en redes locales.
+6.  **💾 Guardar Resultados (`Output`):** ¡Fundamental! Guarda tus hallazgos. `-oN <fichero.nmap>` para formato legible. `-oX <fichero.xml>` para formato XML (ideal para procesar con herramientas como `ndiff` o scripts). `-oA <base_fichero>` guarda en Normal, XML y Grepable a la vez.
 
 ---
 
-## 📋 Resumen Rápido de Opciones Clave
+## 🛡️ Comandos Nmap Esenciales para Defensa (Ejemplos Prácticos) 🛡️
 
-| Opción        | Qué Hace (Simplificado)                                  | Uso Blue Team Principal                             |
-| :------------ | :------------------------------------------------------- | :-------------------------------------------------- |
-| `<target>`    | Especifica a quién escanear (IP, Rango, Red)             | Definir el alcance **autorizado** |
-| `-sn`         | Sólo descubre hosts activos, no escanea puertos        | Inventario rápido de red                            |
-| `-PR`         | Usa ARP para descubrir hosts (sólo red local)            | Descubrimiento **muy rápido** en tu segmento local    |
-| `-F`          | Escanea los 100 puertos TCP más comunes                 | Chequeo rápido de puertos habituales              |
-| `-p <puertos>`| Escanea sólo los puertos TCP/UDP que especifiques        | Verificar puertos específicos (ej. 80, 443, 3389) |
-| `-sS`         | Escaneo TCP SYN (sigiloso, necesita `sudo`)              | El escaneo TCP recomendado si puedes usar `sudo`  |
-| `-sV`         | Intenta identificar versión del servicio en puertos abiertos | **Crucial:** Saber qué software/versión está expuesto |
-| `-oN <fich>`  | Guarda la salida en formato legible                     | Revisión manual, informes simples                 |
-| `-oX <fich>`  | Guarda la salida en formato XML                         | Automatización, comparación, análisis avanzado     |
+Aquí tienes recetas básicas para tareas comunes del Blue Team:
+
+### 1. Inventario Rápido de Red Local (Descubrimiento)
+
+* **Objetivo:** Listar rápidamente IPs activas en tu segmento de red local.
+* **Comando:**
+    ```bash
+    # -sn: No escanear puertos, solo descubrir.
+    # -PR: Método ARP Ping (rápido y fiable en local).
+    # -T4: Timing agresivo para acelerar.
+    sudo nmap -sn -PR -T4 192.168.1.0/24
+    ```
+* **Fíjate en:** Las líneas `Host is up` te dan las IPs activas.
+
+### 2. Chequeo Rápido de Puertos Comunes en un Host
+
+* **Objetivo:** Ver si un host específico tiene abiertos los puertos TCP más típicos.
+* **Comando:**
+    ```bash
+    # -F: Fast Scan (100 puertos TCP más comunes).
+    # -T4: Timing agresivo.
+    sudo nmap -F -T4 192.168.1.10
+    ```
+* **Fíjate en:** La tabla de puertos. ¿Hay algo `open` que no esperabas?
+
+### 3. Escaneo de Puertos TCP Específicos + Versión
+
+* **Objetivo:** Verificar puertos clave (Web, SSH, RDP) y saber qué servicio/versión corre si están abiertos.
+* **Comando:**
+    ```bash
+    # -sS: SYN Scan (sigiloso, necesita sudo).
+    # -sV: Detección de Servicio/Versión ¡Importante!
+    # -p T:22,80,443,3389: Puertos TCP específicos a escanear.
+    # -T4: Timing agresivo.
+    sudo nmap -sS -sV -p T:22,80,443,3389 -T4 192.168.1.15
+    ```
+* **Fíjate en:** Estado (`open`/`closed`/`filtered`), `SERVICE` (ej. http, ssh) y `VERSION` (ej. Apache httpd 2.4.41, OpenSSH 8.2p1).
+
+### 4. Escaneo Más Completo (Top 1000 Puertos + Versión) y Guardado
+
+* **Objetivo:** Un escaneo más profundo de los 1000 puertos TCP más comunes, con detección de versión, guardando los resultados.
+* **Comando:**
+    ```bash
+    # --top-ports 1000: Alternativa a -F, escanea más puertos comunes.
+    # -sV: Detección de versión.
+    # -oA <base_fichero>: Guarda en .nmap, .xml, .gnmap
+    # $(date +%Y%m%d): Añade la fecha al nombre del archivo.
+    sudo nmap -sS -sV --top-ports 1000 -T4 192.168.1.0/24 -oA scan_red_completo_$(date +%Y%m%d)
+    ```
+* **Fíjate en:** Los archivos generados (`.nmap`, `.xml`, `.gnmap`) y su contenido detallado. El XML es especialmente útil para análisis posteriores.
 
 ---
 
-## ✅ Consideraciones Finales (¡Importante!)
+## 🤔 Interpretando los Resultados: Más Allá de los Datos
 
-* **Autorización SIEMPRE:** Ya lo hemos dicho, pero es vital. Ten permiso escrito.
-* **Empieza Simple:** No uses opciones avanzadas o agresivas (`-T5`, `-A`) hasta que entiendas bien qué hacen y tengas permiso. Podrías afectar a la red.
-* **Comunica:** Si vas a escanear una red corporativa, informa a tus compañeros o responsables.
-* **Interpreta:** Nmap te da datos. Tú debes interpretarlos en el contexto de tu red y políticas. ¿Un puerto abierto es normal o anómalo?
+Nmap te da información valiosa, pero **la inteligencia la aportas tú**. Al revisar los resultados, pregúntate:
+
+* **¿Es esperado?** ¿Debería este host estar aquí? ¿Debería este puerto estar abierto según nuestras políticas y la función del sistema?
+* **¿Es vulnerable?** La versión del servicio detectada (`-sV`) ¿tiene vulnerabilidades conocidas (CVEs)? (Necesitarás cruzar esta info con bases de datos de CVEs).
+* **¿Viola la política?** ¿Permite un protocolo inseguro (ej. Telnet abierto)? ¿Expone información sensible?
+* **¿Ha cambiado?** Si comparas con escaneos anteriores (`ndiff` con salida XML), ¿qué ha cambiado y por qué?
+
+> **💡 Consejo:** Integra los resultados de Nmap en tu proceso general de gestión de activos, vulnerabilidades y monitorización. No es una herramienta aislada.
 
 ---
 
-## 📚 Siguientes Pasos
+## 🛠️ Herramienta Adicional: Script de Barrido Básico
 
-¡Esto es sólo el principio! Si quieres profundizar más:
+Para poner en práctica lo aprendido, hemos incluido un script simple en la carpeta `/scripts` (`scan_basico_red.sh`) que automatiza un barrido básico de red:
 
-* Ejecuta `nmap --help` en tu terminal para ver un resumen de opciones.
-* Consulta la [Guía de Referencia Oficial de Nmap](https://nmap.org/book/man.html) (en inglés, ¡pero es la fuente definitiva!).
-* ¡Experimenta en un entorno **controlado y autorizado** (como máquinas virtuales propias)!
+1.  Descubre hosts activos en una subred (`-PR`).
+2.  Escanea los puertos comunes (`-F`) y versiones (`-sV`) de esos hosts.
+3.  Guarda los resultados (`-oA`).
 
-**¡Feliz (y ético) escaneo!**
+**Uso (¡Siempre con autorización!):**
+
+```bash
+# 1. Ve a la carpeta del script
+cd scripts/
+
+# 2. Dale permisos de ejecución (solo la primera vez)
+chmod +x scan_basico_red.sh
+
+# 3. Ejecútalo con sudo y tu subred autorizada
+sudo ./scan_basico_red.sh <TU_SUBNET_AUTORIZADA_CIDR>
+# Ejemplo: sudo ./scan_basico_red.sh 192.168.1.0/24
